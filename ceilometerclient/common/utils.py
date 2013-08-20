@@ -13,8 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import errno
-import hashlib
 import os
 import sys
 import textwrap
@@ -41,7 +39,8 @@ def pretty_choice_list(l):
 
 
 def print_list(objs, fields, field_labels, formatters={}, sortby=0):
-    pt = prettytable.PrettyTable([f for f in field_labels], caching=False)
+    pt = prettytable.PrettyTable([f for f in field_labels],
+                                 caching=False, print_empty=False)
     pt.align = 'l'
 
     for o in objs:
@@ -57,7 +56,8 @@ def print_list(objs, fields, field_labels, formatters={}, sortby=0):
 
 
 def print_dict(d, dict_property="Property", wrap=0):
-    pt = prettytable.PrettyTable([dict_property, 'Value'], caching=False)
+    pt = prettytable.PrettyTable([dict_property, 'Value'],
+                                 caching=False, print_empty=False)
     pt.align = 'l'
     for k, v in d.iteritems():
         # convert dict to str to check length
@@ -125,6 +125,19 @@ def import_versioned_module(version, submodule=None):
     if submodule:
         module = '.'.join((module, submodule))
     return importutils.import_module(module)
+
+
+def args_array_to_dict(kwargs, key_to_convert):
+    values_to_convert = kwargs.get(key_to_convert)
+    if values_to_convert:
+        try:
+            kwargs[key_to_convert] = dict(v.split("=", 1)
+                                          for v in values_to_convert)
+        except ValueError:
+            raise exc.CommandError(
+                '%s must be a list of key=value not "%s"' % (
+                    key_to_convert, values_to_convert))
+    return kwargs
 
 
 def exit(msg=''):

@@ -29,9 +29,8 @@ except NameError:
 
 
 def getid(obj):
-    """
-    Abstracts the common pattern of allowing both an object or an object's ID
-    (UUID) as a parameter when dealing with relationships.
+    """Abstracts the common pattern of allowing both an object or an
+    object's ID (UUID) as a parameter when dealing with relationships.
     """
     try:
         return obj.id
@@ -40,14 +39,18 @@ def getid(obj):
 
 
 class Manager(object):
-    """
-    Managers interact with a particular type of API (servers, flavors, images,
-    etc.) and provide CRUD operations for them.
+    """Managers interact with a particular type of API
+    (samples, meters, alarms, etc.) and provide CRUD operations for them.
     """
     resource_class = None
 
     def __init__(self, api):
         self.api = api
+
+    def _create(self, url, body):
+        resp, body = self.api.json_request('POST', url, body=body)
+        if body:
+            return self.resource_class(self, body)
 
     def _list(self, url, response_key=None, obj_class=None, body=None,
               expect_single=False):
@@ -67,19 +70,18 @@ class Manager(object):
             data = [data]
         return [obj_class(self, res, loaded=True) for res in data if res]
 
-    def _delete(self, url):
-        self.api.raw_request('DELETE', url)
-
     def _update(self, url, body, response_key=None):
         resp, body = self.api.json_request('PUT', url, body=body)
         # PUT requests may not return a body
         if body:
-            return self.resource_class(self, body[response_key])
+            return self.resource_class(self, body)
+
+    def _delete(self, url):
+        self.api.raw_request('DELETE', url)
 
 
 class Resource(object):
-    """
-    A resource represents a particular instance of an object (tenant, user,
+    """A resource represents a particular instance of an object (tenant, user,
     etc). This is pretty much just a bag for attributes.
 
     :param manager: Manager object

@@ -13,10 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import unittest
-
+from ceilometerclient.tests import utils
 import ceilometerclient.v2.resources
-from tests import utils
 
 
 fixtures = {
@@ -68,9 +66,10 @@ fixtures = {
 }
 
 
-class ResourceManagerTest(unittest.TestCase):
+class ResourceManagerTest(utils.BaseTestCase):
 
     def setUp(self):
+        super(ResourceManagerTest, self).setUp()
         self.api = utils.FakeAPI(fixtures)
         self.mgr = ceilometerclient.v2.resources.ResourceManager(self.api)
 
@@ -94,12 +93,12 @@ class ResourceManagerTest(unittest.TestCase):
         self.assertEqual(resource.resource_id, 'a')
 
     def test_list_by_query(self):
-        resources = list(self.mgr.list(q=[
-                                          {"field": "resource_id",
+        resources = list(self.mgr.list(q=[{"field": "resource_id",
                                            "value": "a"},
-                                       ]))
+                                          ]))
         expect = [
-            ('GET', '/v2/resources?q.op=&q.value=a&q.field=resource_id', {}, None),
+            ('GET', '/v2/resources?q.op=&q.value=a&q.field=resource_id',
+             {}, None),
         ]
         self.assertEqual(self.api.calls, expect)
         self.assertEqual(len(resources), 1)

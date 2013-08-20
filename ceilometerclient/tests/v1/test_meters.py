@@ -13,10 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import unittest
-
+from ceilometerclient.tests import utils
 import ceilometerclient.v1.meters
-from tests import utils
 
 
 fixtures = {
@@ -107,9 +105,10 @@ fixtures = {
 }
 
 
-class MeterManagerTest(unittest.TestCase):
+class MeterManagerTest(utils.BaseTestCase):
 
     def setUp(self):
+        super(MeterManagerTest, self).setUp()
         self.api = utils.FakeAPI(fixtures)
         self.mgr = ceilometerclient.v1.meters.MeterManager(self.api)
 

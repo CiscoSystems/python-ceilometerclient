@@ -22,13 +22,13 @@ class Client(http.HTTPClient):
 
     :param string endpoint: A user-supplied endpoint URL for the ceilometer
                             service.
-    :param string token: Token for authentication.
+    :param function token: Provides token for authentication.
     :param integer timeout: Allows customization of the timeout for client
                             http requests. (optional)
     """
 
     def __init__(self, *args, **kwargs):
-        """ Initialize a new client for the Ceilometer v1 API. """
+        """Initialize a new client for the Ceilometer v1 API."""
         super(Client, self).__init__(*args, **kwargs)
         self.meters = meters.MeterManager(self)
         self.samples = meters.SampleManager(self)
