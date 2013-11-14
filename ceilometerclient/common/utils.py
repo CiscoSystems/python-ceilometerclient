@@ -27,6 +27,13 @@ from ceilometerclient.openstack.common import importutils
 # Decorator for cli-args
 def arg(*args, **kwargs):
     def _decorator(func):
+        if 'help' in kwargs:
+            if 'default' in kwargs:
+                kwargs['help'] += " Defaults to %s." % kwargs['default']
+            required = kwargs.get('required', False)
+            if required:
+                kwargs['help'] += " Required."
+
         # Because of the sematics of decorator composition if we just append
         # to the options list positional options will appear to be backwards.
         func.__dict__.setdefault('arguments', []).insert(0, (args, kwargs))
@@ -151,6 +158,15 @@ def key_with_slash_to_nested_dict(kwargs):
             del kwargs[k]
     kwargs.update(nested_kwargs)
     return kwargs
+
+
+def merge_nested_dict(dest, source, depth=0):
+    for (key, value) in source.iteritems():
+        if isinstance(value, dict) and depth:
+            merge_nested_dict(dest[key], value,
+                              depth=(depth - 1))
+        else:
+            dest[key] = value
 
 
 def exit(msg=''):
